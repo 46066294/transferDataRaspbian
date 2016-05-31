@@ -62,7 +62,11 @@ public class DataTransfer extends Thread{
 
             outputStream.write(fileBind(filePath));
 
+            Thread.sleep(2000);
+
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -77,8 +81,19 @@ public class DataTransfer extends Thread{
             //Path path = Paths.get("C:\\adesconocido.txt");
             Path path = Paths.get(wantedPath);
             byte[] data = Files.readAllBytes(path);
-            
-            return data;
+            int bufferSize = data.length + 1;
+            //System.out.println("dataLengh: " + data.length);
+            byte[] dataSend = new byte[bufferSize];
+            for(int i = 0; i < dataSend.length; i++){
+                //System.out.println(data[i]);
+                if(i < data.length){
+                    dataSend[i] = data[i];
+                }
+                else
+                    dataSend[i] = 33;//"!" al final del stream
+
+            }
+            return dataSend;
         }
         else{
             System.out.println("NOT exists: " + wantedPath);

@@ -40,17 +40,19 @@ public class ClientData {
         // write the inputStream to a FileOutputStream
         input.reset();
         System.out.println("\nEnter path to save file:");
-        String downloadPath = input.nextLine();
+        //String downloadPath = input.nextLine();
         outputStream =
                 //new FileOutputStream(new File("/home/pi/curwenProj/dataTransfer/data"));
-                new FileOutputStream(new File(downloadPath));
+                new FileOutputStream(new File("C:\\Users\\Mat\\Downloads\\abc.txt"));
 
         //response
         InputStream inputStream = socket.getInputStream();
-        int totalBytes;
+        int totalBytes = 0;
         int contBytes = 0;
         Vector<Byte> vector = new Vector<Byte>();
-        while((totalBytes = inputStream.read()) != 33){//33 == "!"
+        //int totalBytes = inputStream.read();
+        System.out.println(totalBytes);
+        while((totalBytes = (byte) inputStream.read()) != 33){//33 == "!"
             System.out.println(totalBytes);
             vector.add((byte) totalBytes);
             contBytes++;
