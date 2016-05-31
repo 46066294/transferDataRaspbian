@@ -9,76 +9,119 @@ import java.util.Vector;
  */
 public class ClientData {
     public static void main(String[] args) throws IOException {
+        System.out.println("***Transfer Data Raspbian(Client Side) v1.0 Author: Marc Cano***");
+
         Scanner input = new Scanner(System.in);
 
-        String ipClient = "192.168.1.102";
-        Integer portClient = 5555;
+        System.out.println("\n-Enter IP:");
+        input.reset();
+        String ipClient = input.nextLine();
+        System.out.println("\n-Enter PORT:");
+        input.reset();
+        Integer portClient = input.nextInt();
 
+        clientTransferData(input, ipClient, portClient);
+
+        optionInput(input, ipClient, portClient);
+
+        input.close();
+
+    }//main
+
+
+
+    protected static void clientTransferData(Scanner input, String ipClient, Integer portClient) throws IOException {
+
+        //create client socket and connexion
         Socket socket = new Socket();
         InetSocketAddress address = new InetSocketAddress(ipClient, portClient);
         socket.connect(address);
 
         //info
-        System.out.println("...connection successful");
-        System.out.println("----CLIENT DATA----");
+        System.out.println("\n...connection successful");
+        System.out.println("-------CLIENT DATA-------");
         System.out.println("IP    : " + ipClient);
         System.out.println("Port  : " + portClient);
-        //System.out.println("\tChanel: " + socket.getChannel().toString() + "\n");
-        System.out.println("-------------------");
+        System.out.println("-------------------------");
 
-        //send request path for file wanted
-        input.reset();
         System.out.println("\nEnter path wanted:");
-        String wantedPath = input.nextLine();//C:\adesconocido.txt
+        input.reset();
+        String wantedPath = input.nextLine();
+
+        //send request path for wanted file
         OutputStream outputStream = socket.getOutputStream();
         String sendModifiedPath = wantedPath + "!";
         outputStream.write(sendModifiedPath.getBytes());
-        System.out.println(sendModifiedPath);
         System.out.println("\nSending request...\n");
 
 
-        // write the inputStream to a FileOutputStream
-        input.reset();
-        System.out.println("\nEnter path to save file:");
-        //String downloadPath = input.nextLine();
-        outputStream =
-                //new FileOutputStream(new File("/home/pi/curwenProj/dataTransfer/data"));
-                new FileOutputStream(new File("C:\\Users\\Mat\\Downloads\\abc.txt"));
-
-        //response
+        //Get response
         InputStream inputStream = socket.getInputStream();
         int totalBytes = 0;
         int contBytes = 0;
-        Vector<Byte> vector = new Vector<Byte>();
-        //int totalBytes = inputStream.read();
-        System.out.println(totalBytes);
-        while((totalBytes = (byte) inputStream.read()) != 33){//33 == "!"
-            System.out.println(totalBytes);
-            vector.add((byte) totalBytes);
-            contBytes++;
+        if(inputStream.read() == 4 ){
+            System.out.println("--RESPONSE\n\t...FILE NOT FOUND");
+        }
+        else{//manage modified stream
+            Vector<Byte> vector = new Vector<Byte>();
+            while((totalBytes = (byte) inputStream.read()) != 4){//EOT (end of transmission) == 4
+                vector.add((byte) totalBytes);
+                contBytes++;
+            }
+
+            //get original bytes from wanted file
+            byte[] fileFromServer = new byte[contBytes];
+            for(int i = 0; i < contBytes; i++)
+                fileFromServer[i] = vector.get(i);
+
+
+            System.out.println("--Buffer size: " +
+                    fileFromServer.length + " bytes");
+
+
+            System.out.println("\nLoading response...");
+            // write stream into client file
+            input.reset();
+            System.out.println("\nEnter path to save file:");
+            String downloadPath = input.nextLine();
+            outputStream.flush();
+            outputStream =
+                    //new FileOutputStream(new File("/home/pi/curwenProj/dataTransfer/data"));
+                    new FileOutputStream(new File(downloadPath));
+            outputStream.write(fileFromServer, 0, contBytes);
+
+            System.out.println("Done!");
         }
 
-        System.out.println("contBytes: " + contBytes);
-        byte[] fileFromServer = new byte[contBytes];
-        for(int i = 0; i < contBytes; i++){
-            fileFromServer[i] = vector.get(i);
-            System.out.println(fileFromServer[i]);
-        }
-
-        System.out.println("buffer Len: " + fileFromServer.length);
-
-        String bytesToString = new String(fileFromServer);
-        System.out.println(bytesToString);
-
-        System.out.println("\nLoading request...");
-        outputStream.write(fileFromServer, 0, contBytes);
-
-        System.out.println("Int max_val " + Integer.MAX_VALUE);
-        System.out.println("Done!");
-
-        input.close();
         socket.close();
         inputStream.close();
         outputStream.close();
-    }
-}
+    }//clientTransferData()
+
+
+
+    //repeat another file transfer
+    protected static void optionInput(Scanner scan, String ip, Integer port) throws IOException {
+        boolean continueExe = true;
+        while(continueExe){
+
+            System.out.println("\nAnother file transfer? (y/n)");
+            scan.reset();
+            String continueTransfer = scan.nextLine();
+            continueTransfer.toLowerCase();
+            if(continueTransfer.equals("y")){
+                clientTransferData(scan, ip, port);
+
+            }
+            else if(continueTransfer.equals("n")){
+                continueExe = false;
+                System.out.println("BYE!");
+            }
+            else{
+                System.out.println("...incorrect input");
+            }
+        }
+
+    }//optionInput()
+
+}//class

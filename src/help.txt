@@ -1,13 +1,24 @@
-YOUTUBE TUTORIAL
+------------------------Transfer Data Raspbian(Client Side) v1.0 Author: Marc Cano------------------------
 
-https://www.youtube.com/watch?v=hCMVx9ywBqA
+-Program for transfering plain files using client-server sockets
 
-----------------------------------------------------------------------------------
+v1.0 --> 05/2016
+
+----------------------------------------------------------------------------------------------------------
+Run
+    Edit configurations:
+        VM options       :  -Xmx1073741824 (ClientData && ServerData)
+        Program arguments:  -Xmx1073741824 (ClientData && ServerData)
+
+windows: cmd      --> java -X
+linux  : terminal --> java -X
+
+----------------------------------------------------------------------------------------------------------
 WEB
 
 https://examples.javacodegeeks.com/core-java/net/inetaddress/java-net-inet4address-example/
 
-----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
 DOCS ORACLE
 
 http://download.java.net/jdk7/archive/b123/docs/api/java/net/ServerSocket.html
@@ -18,7 +29,7 @@ http://docs.oracle.com/javase/1.5.0/docs/api/java/net/InetAddress.html
 
 http://docs.oracle.com/javase/1.5.0/docs/api/java/net/Inet4Address.html#format
 
-----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
 IMPORTANTE
 
 comando en cmd:
@@ -35,4 +46,7 @@ https://plumbr.eu/outofmemoryerror/java-heap-space
 
 http://stackoverflow.com/questions/6748432/java-heap-space-out-of-memory
 
----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
+YOUTUBE TUTORIAL
+
+https://www.youtube.com/watch?v=hCMVx9ywBqA

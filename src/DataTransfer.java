@@ -13,96 +13,107 @@ import java.util.Vector;
  */
 public class DataTransfer extends Thread{
 
-    Socket socketDataTransfer;
-    Integer counterCall;
-    String filePath;
+    Socket socketDataTransfer;                    //socket
+    String filePath;                              //client request path
+    Integer counterCall;                          //number of calls to server
+    Integer notFound = 4;                         //EOT (end of transmision) index
+    byte responseNotFound = notFound.byteValue(); //Not found message buffer
 
-    public DataTransfer(Socket socket, Integer[] counterCall){
+    public DataTransfer(Socket socket, Integer counterCall){
         this.socketDataTransfer = socket;
-        this.counterCall = counterCall[0];
+        this.counterCall = counterCall;
     }
 
 
+    //synchronized Thread
     @Override
     public synchronized void start() {
         super.start();
 
+        System.out.println("\n--------------------new call--------------------");
         System.out.println("\n...START DATA TRANSFER");
         System.out.println("Call: " + counterCall);
-        System.out.println("------CALLER------" +
-                            "\nIP  : " + socketDataTransfer.getInetAddress().toString() +
-                            "\nPORT: " + socketDataTransfer.getLocalPort() +
-                            "\n------------------");
+        System.out.println("IP  : " + socketDataTransfer.getInetAddress().toString() +
+                            "\nPORT: " + socketDataTransfer.getLocalPort());
+        System.out.println("\nwaiting request...");
 
         try {
+            //Streams to transfer data
             InputStream inputStream = socketDataTransfer.getInputStream();
             OutputStream outputStream = socketDataTransfer.getOutputStream();
 
-            //preload buffer for reading client request
+            //preload buffer for reading modified(eof = "!") client request
             int totalBytes;
             int contBytes = 0;
             Vector<Byte> vector = new Vector<Byte>();
-            while((totalBytes = inputStream.read()) != 33){//33 == "!"
-                System.out.println(totalBytes);
-                vector.add((byte) totalBytes);
+            while((totalBytes = inputStream.read()) != 33){//33 == "!" --> Client adds a "!" char at the end of byte stream
+                vector.add((byte) totalBytes);             //               We need this final char to end loop
                 contBytes++;
             }
 
-            System.out.println("contBytes: " + contBytes);
+            //load original client request buffer:
             byte[] filePathFromClient = new byte[contBytes];
             for(int i = 0; i < contBytes; i++){
                 filePathFromClient[i] = vector.get(i);
-                System.out.println(filePathFromClient[i]);
             }
 
-            System.out.println("buffer Len: " + filePathFromClient.length);
-
+            //Verify request
             filePath = new String(filePathFromClient);
-            System.out.println(filePath);
+            System.out.println("--REQUEST:\n\t" + filePath);
 
-            outputStream.write(fileBind(filePath));
+            //Get the file with bytes stream into server system
+            byte[] buffer = fileBind(filePath);
+            //response
+            if(buffer != null) {
+                System.out.println("Sending response...");
+                outputStream.write(buffer);
+                System.out.println("...ok!");
+            }
+            else {
+                System.out.println("\n--RESPONSE\n...FILE DOESN'T EXIST\n");
+                outputStream.write(responseNotFound);
+            }
 
-            Thread.sleep(2000);
+            inputStream.close();
+            outputStream.close();
 
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } finally {
+            try {
+                socketDataTransfer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-    }
+    }//start Thread
 
-    public byte[] fileBind(String wantedPath) throws IOException {
 
-        System.out.println(wantedPath);
-        File file = new File(wantedPath);//C:\adesconocido.txt
+    //Get the file with bytes stream into server system
+    private byte[] fileBind(String wantedPath) throws IOException {
+
+        File file = new File(wantedPath);
         if(file.exists()){
-            System.out.println("exists: " + wantedPath);
-            //Path path = Paths.get("C:\\adesconocido.txt");
+            System.out.println("\n--RESPONSE\n...file found!");
             Path path = Paths.get(wantedPath);
             byte[] data = Files.readAllBytes(path);
             int bufferSize = data.length + 1;
-            //System.out.println("dataLengh: " + data.length);
             byte[] dataSend = new byte[bufferSize];
             for(int i = 0; i < dataSend.length; i++){
-                //System.out.println(data[i]);
-                if(i < data.length){
+                if(i < data.length)
                     dataSend[i] = data[i];
-                }
-                else
-                    dataSend[i] = 33;//"!" al final del stream
 
+                else
+                    dataSend[i] = 4;//EOT (end of transmission) We put this integer
+                                    //                            at the end of buffer to exit loop
             }
+
             return dataSend;
         }
-        else{
-            System.out.println("NOT exists: " + wantedPath);
-            //Path path = Paths.get("RESPONSE FILE NOT EXIST");
-            //byte[] dataOut = Files.readAllBytes(path);
-
+        else
             return null;
-        }
-    }
 
+    }//fileBind()
 
-}
+}//class
