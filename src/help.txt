@@ -1,0 +1,38 @@
+YOUTUBE TUTORIAL
+
+https://www.youtube.com/watch?v=hCMVx9ywBqA
+
+----------------------------------------------------------------------------------
+WEB
+
+https://examples.javacodegeeks.com/core-java/net/inetaddress/java-net-inet4address-example/
+
+----------------------------------------------------------------------------------
+DOCS ORACLE
+
+http://download.java.net/jdk7/archive/b123/docs/api/java/net/ServerSocket.html
+
+http://docs.oracle.com/javase/1.5.0/docs/api/java/net/InetSocketAddress.html
+
+http://docs.oracle.com/javase/1.5.0/docs/api/java/net/InetAddress.html
+
+http://docs.oracle.com/javase/1.5.0/docs/api/java/net/Inet4Address.html#format
+
+----------------------------------------------------------------------------------
+IMPORTANTE
+
+comando en cmd:
+    java -X
+        para ver especificaciones de memoria para la VM
+
+http://alvinalexander.com/blog/post/java/java-xmx-xms-memory-heap-size-control
+
+https://plumbr.eu/outofmemoryerror/java-heap-space
+    java -Xmx1073741824 com.mycompany.MyClass
+        java -Xmx1048576k com.mycompany.MyClass
+        java -Xmx1024m com.mycompany.MyClass
+        java -Xmx1g com.mycompany.MyClass
+
+http://stackoverflow.com/questions/6748432/java-heap-space-out-of-memory
+
+---------------------------------------------------------------------------------
